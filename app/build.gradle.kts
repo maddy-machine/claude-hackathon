@@ -45,20 +45,11 @@ dependencies {
     implementation(files("libs/RunAnywhereKotlinSDK-release.aar"))
     implementation(files("libs/runanywhere-llm-llamacpp-release.aar"))
 
-    // Ktor Bill of Materials to ensure version consistency
-    implementation(platform("io.ktor:ktor-bom:2.3.11"))
-
     // Required SDK dependencies (versions managed by BOMs where applicable)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
-
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-okhttp")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-client-logging")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
