@@ -1,5 +1,6 @@
 package com.runanywhere.startup_hackathon20
 
+import android.app.Application
 import android.app.DatePickerDialog
 import android.net.Uri
 import android.os.Bundle
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,9 +34,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import com.runanywhere.startup_hackathon20.ui.theme.EventPlannerTheme
 import kotlinx.coroutines.launch
@@ -46,7 +50,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             EventPlannerTheme {
-                val eventViewModel: EventViewModel = viewModel()
+                val eventViewModel: EventViewModel = viewModel(factory = EventViewModelFactory(application))
                 val chatViewModel: ChatViewModel = viewModel()
                 val loginViewModel: LoginViewModel = viewModel()
                 EventPlannerApp(eventViewModel, chatViewModel, loginViewModel)
@@ -65,6 +69,7 @@ fun EventPlannerApp(
     val loginState by loginViewModel.loginState
     val signUpState by loginViewModel.signUpState
     val scope = rememberCoroutineScope()
+    val events by eventViewModel.events.observeAsState(initial = emptyList())
 
     NavHost(navController, startDestination = "login") {
         composable("login") {
@@ -110,7 +115,7 @@ fun EventPlannerApp(
         }
         composable("event_list") {
             EventListScreen(
-                events = eventViewModel.events,
+                events = events,
                 onEventClick = { eventId ->
                     navController.navigate("event_detail/$eventId")
                 },
@@ -133,11 +138,14 @@ fun EventPlannerApp(
             )
         }
 
-        composable("event_detail/{eventId}") { backStackEntry ->
-            val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+        composable(
+            "event_detail/{eventId}",
+            arguments = listOf(navArgument("eventId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getLong("eventId") ?: 0L
             val context = LocalContext.current
             EventDetailScreen(
-                event = eventViewModel.events.find { it.id == eventId },
+                event = events.find { it.id == eventId },
                 tasks = eventViewModel.getTasksForEvent(eventId),
                 guests = eventViewModel.getGuestsForEvent(eventId),
                 expenses = eventViewModel.getExpensesForEvent(eventId),
@@ -157,7 +165,7 @@ fun EventPlannerApp(
 @Composable
 fun EventListScreen(
     events: List<Event>,
-    onEventClick: (String) -> Unit,
+    onEventClick: (Long) -> Unit,
     onAddEvent: () -> Unit,
     onSignOut: () -> Unit
 ) {
