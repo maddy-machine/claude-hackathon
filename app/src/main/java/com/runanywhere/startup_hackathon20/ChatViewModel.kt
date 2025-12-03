@@ -8,6 +8,7 @@ import com.runanywhere.sdk.public.extensions.listAvailableModels
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.runanywhere.startup_hackathon20.Event
 
 // Simple Message Data Class
 data class ChatMessage(
